@@ -1,3 +1,11 @@
-export default function HomePage(){
-    return <h1>Home Page</h1>
+import FeaturedPosts from "../components/home-page/featured-posts.js";
+import Hero from "../components/home-page/hero.js";
+
+export default function HomePage() {
+    return (
+        <>
+            <Hero />
+            <FeaturedPosts />
+        </>
+    );
 }
