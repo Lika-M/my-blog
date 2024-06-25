@@ -1,3 +1,5 @@
+import ReactMarkdown from 'react-markdown';
+
 import classes from './detail-content.module.css';
 import DetailHeader from './detail-header.js';
 
@@ -14,7 +16,9 @@ export default function DetailContent() {
     return (
         <article className={classes.content}>
             <DetailHeader title={DUMMY_POST.title} image={imgPath} />
-            {DUMMY_POST.content}
+            <ReactMarkdown>
+                {DUMMY_POST.content}
+            </ReactMarkdown>
         </article>
     );
 }
