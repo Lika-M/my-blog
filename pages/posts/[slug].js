@@ -1,3 +1,5 @@
+import DetailContent from "../../components/posts/post-detail/detail-content.js";
+
 export default function PostDetailPage(){
-    return <h1>Detail Page</h1>
+    return <DetailContent />
 }
