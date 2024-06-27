@@ -1,3 +1,5 @@
+import ContactForm from "../components/contact/contact-form.js";
+
 export default function ContactPage(){
-    return <h1>Contact Page</h1>
+    return <ContactForm />
 }
