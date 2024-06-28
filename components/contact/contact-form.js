@@ -1,21 +1,52 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import Notification from '../notification/notification.js';
 import classes from './contact-form.module.css';
 
 export default function ContactForm() {
     const [inputEmail, setInputEmail] = useState('');
     const [inputName, setInputName] = useState('');
     const [inputMessage, setInputMessage] = useState('');
-    const [formState, setFormState] = useState(null); //pending success fail
+    const [requestStatus, setRequestStatus] = useState(null);
+    const [requestError, setRequestError] = useState(null);
+
+    useEffect(() => {
+        if (requestStatus === 'success' || requestStatus === 'error') {
+            const timer = setTimeout(() => {
+                setRequestStatus(null);
+                setRequestError(null);
+            }, 3000);
+            //clear before create new timer
+            return () => clearTimeout(timer);
+        }
+    }, [requestStatus])
+
+    async function sendContactData(contactData) {
+
+        const response = await fetch('/api/contact', {
+            method: 'POST',
+            body: JSON.stringify(contactData),
+            headers: { 'Content-Type': 'Application/json' }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message)
+        }
+        return data;
+    }
 
     async function SendMessageHandler(e) {
         e.preventDefault();
-        setFormState('pending');
+        setRequestStatus('pending');
 
         const isValid = inputEmail && inputEmail.includes('@') && inputName && inputMessage;
 
-        if(!isValid){
-            alert('Invalid input!');
+        if (!isValid) {
+            setRequestStatus('error');
+            setRequestError('Invalid input!');
+            return;
         }
 
         const userData = {
@@ -25,19 +56,42 @@ export default function ContactForm() {
         }
 
         try {
-            const response = await fetch('/api/contact', {
-                method: 'POST',
-                body: JSON.stringify(userData),
-                headers: { 'Content-Type': 'Application/json' }
-            });
-
-            const data = await response.json();
-            console.log(data);
+            await sendContactData(userData);
+            setInputEmail('');
+            setInputName('');
+            setInputMessage('');
+            setRequestStatus('success');
 
         } catch (error) {
-
+            setRequestStatus('error');
+            setRequestError(error.message);
         }
+    }
 
+    let notification;
+
+    if (requestStatus === 'pending') {
+        notification = {
+            status: 'pending',
+            title: 'Sending message...',
+            message: 'Your message is on its way!'
+        };
+    }
+
+    if (requestStatus === 'success') {
+        notification = {
+            status: 'success',
+            title: 'Success!',
+            message: 'Your message sent successfully!'
+        };
+    }
+
+    if (requestStatus === 'error') {
+        notification = {
+            status: 'error',
+            title: 'Error!',
+            message: requestError
+        };
     }
 
     return (
@@ -72,9 +126,10 @@ export default function ContactForm() {
                     />
                 </div>
                 <div className={classes.actions}>
-                    <button type="submit">Send Message</button>
+                    <button type="submit" disabled={requestStatus === 'pending'}>Send Message</button>
                 </div>
             </form>
+            {notification && <Notification {...notification} />}
         </section>
     );
 }
