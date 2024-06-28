@@ -12,26 +12,31 @@ export default function ContactForm() {
         e.preventDefault();
         setFormState('pending');
 
+        const isValid = inputEmail && inputEmail.includes('@') && inputName && inputMessage;
+
+        if(!isValid){
+            alert('Invalid input!');
+        }
+
         const userData = {
             email: inputEmail,
             name: inputName,
             message: inputMessage
         }
-        // add client-side validation
 
-        // try {
+        try {
             const response = await fetch('/api/contact', {
                 method: 'POST',
                 body: JSON.stringify(userData),
                 headers: { 'Content-Type': 'Application/json' }
             });
 
-
             const data = await response.json();
+            console.log(data);
 
-        // } catch (error) {
+        } catch (error) {
 
-        // }
+        }
 
     }
 
@@ -49,7 +54,7 @@ export default function ContactForm() {
                         />
                     </div>
                     <div className={classes.control}>
-                        <label htmlFor="name">Your Email</label>
+                        <label htmlFor="name">Your Name</label>
                         <input type="text" id="name"
                             value={inputName}
                             onChange={(e) => setInputName(e.target.value)}
@@ -59,7 +64,7 @@ export default function ContactForm() {
                 </div>
 
                 <div className={classes.control}>
-                    <label htmlFor="message">Your Email</label>
+                    <label htmlFor="message">Message</label>
                     <textarea type="text" id="message" rows={5}
                         value={inputMessage}
                         onChange={(e) => setInputMessage(e.target.value)}

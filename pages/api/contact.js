@@ -1,6 +1,8 @@
-export default async function handler(req, res) {
+import { connectDatabase, insertCollectionDocument } from "../../util/api-db.js";
 
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
+        res.status(405).json({ message: 'Method not allowed' });
         return;
     }
 
@@ -9,15 +11,35 @@ export default async function handler(req, res) {
 
     if (!isValid) {
         res.status(422).json({ message: 'Invalid input' });
-        return
+        return;
     }
 
     const newMessage = {
         email,
         name,
-        message
+        message,
+        createdAt: new Date().toISOString() 
     };
-    // store it in the DB
-    console.log(newMessage);
-    res.status(201).json({message: 'Successful stored.', data: newMessage})
+
+    let client;
+
+    try {
+        client = await connectDatabase();
+    } catch (error) {
+        res.status(500).json({ message: 'Connecting to the DB failed.' });
+        return;
+    }
+
+    try {
+        await insertCollectionDocument(client, newMessage);
+        res.status(201).json({ message: 'Message stored successfully!', data: newMessage });
+    } catch (error) {
+        res.status(500).json({ message: 'Storing the message failed.' });
+    } finally {
+        try {
+            await client.close();
+        } catch (error) {
+            console.error('Failed to close the database connection:', error);
+        }
+    }
 }
