@@ -1,8 +1,18 @@
+import Head from "next/head.js";
+
 import DetailContent from "../../components/posts/post-detail/detail-content.js";
 import { getAllPosts, getPostData } from "../../lib/posts-util.js";
 
 export default function PostDetailPage({ post }) {
-    return <DetailContent post={post}/>
+    return (
+        <>
+            <Head>
+                <title>{post.title}</title>
+                <meta name="description" content={post.excerpt} />
+            </Head>
+            <DetailContent post={post} />
+        </>
+    );
 }
 
 export async function getStaticProps(context) {
