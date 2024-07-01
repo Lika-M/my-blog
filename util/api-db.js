@@ -1,8 +1,8 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://Lika:IjgLt66bNZKsn0Z3@atlascluster.tcca3nt.mongodb.net/?appName=AtlasCluster";
+const url = `mongodb+srv://${process.env.mongodb_username}:${process.env.mongodb_pass}@atlascluster.tcca3nt.mongodb.net/?appName=AtlasCluster`;
 
 export async function connectDatabase() {
-    const client = new MongoClient(uri, {
+    const client = new MongoClient(url, {
         serverApi: {
           version: ServerApiVersion.v1,
           strict: true,
@@ -14,7 +14,7 @@ export async function connectDatabase() {
 }
 
 export async function insertCollectionDocument(client, document){
-    const db = client.db('my-blog');
+    const db = client.db(process.env.mongodb_db);
     let collection = await db.collection('messages');
     const result = await collection.insertOne(document);
     return result;
